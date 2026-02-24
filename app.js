@@ -109,7 +109,6 @@ const createAthleteCard = (athleteData) => {
         }
     };
 
-    // Initial Render
     render();
     return cardElement;
 };
