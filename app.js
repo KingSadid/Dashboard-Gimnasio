@@ -72,7 +72,7 @@ const createAthleteCard = (athleteData) => {
         card.querySelector('button').addEventListener('click', handleToggle);
     };
 
-    // Handler de lógica de negocio (Controller)
+    // Controller de lógica de negocio 
     const handleToggle = () => {
         currentState.isLoading = true;
         render(); 
@@ -103,28 +103,23 @@ async function initDashboard() {
     };
 
     try {
-        // 1. Waterfall Auth -> Data
         const coach = await Service.authCoach();
         ui.coachLabel.textContent = coach.name;
 
         const rawAthletes = await Service.getAthletes(coach.id);
-
-        // 2. Procesamiento paralelo (Metrics + UI Rendering)
-        // Usamos Fragment para minimizar Reflows/Repaints en el DOM
         const fragment = document.createDocumentFragment();
         
         rawAthletes.forEach((athlete, index) => {
             const card = createAthleteCard(athlete);
-            // Pequeño delay artificial para efecto cascada visual
             card.style.animationDelay = `${index * 100}ms`; 
             fragment.appendChild(card);
         });
 
-        // Calculamos métricas independientemente del renderizado
+        // Calculamos métricas 
         const teamScore = await Service.calculateMetrics(rawAthletes);
         ui.scoreLabel.textContent = `${teamScore}`;
 
-        // 3. Montaje final en DOM
+        // Montaje final en DOM
         ui.loader.classList.add('hidden');
         ui.statsPanel.classList.remove('hidden');
         ui.grid.appendChild(fragment);
