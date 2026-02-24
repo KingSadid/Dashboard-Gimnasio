@@ -3,23 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Elite Dashboard</title>
+    <title>Gym Elite | Pro Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Dashboard de Alto Rendimiento</h1>
-        <div id="dashboard-info" class="dashboard-stats hidden">
-            <span>Coach: <strong id="coach-name">...</strong></span>
-            <span>Rendimiento Equipo: <strong id="team-score">...</strong></span>
+    
+    <header class="glass-header">
+        <div class="logo-area">
+            <h1>⚡ GYM ELITE <span class="subtitle">PRO DASHBOARD</span></h1>
+        </div>
+        
+        <div id="dashboard-info" class="stats-panel hidden">
+            <div class="stat-item">
+                <span class="label">Head Coach</span>
+                <span class="value" id="coach-name">--</span>
+            </div>
+            <div class="divider"></div>
+            <div class="stat-item">
+                <span class="label">Rendimiento Equipo</span>
+                <span class="value accent" id="team-score">--</span>
+            </div>
         </div>
     </header>
 
     <main>
-        <div id="status-message" class="loading">Iniciando sistema...</div>
+        <div id="status-message" class="loader-container">
+            <div class="spinner"></div>
+            <p class="blink">Sincronizando datos biométricos...</p>
+        </div>
+
         <div id="athletes-container" class="grid-container"></div>
     </main>
 
     <script src="app.js"></script>
 </body>
-</html>
+</html>>

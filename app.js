@@ -1,33 +1,23 @@
-// --- SERVICES (MOCK API) ---
+// --- SERVICES ---
+// (Mismas funciones de promesa que el anterior, sin cambios lógicos)
+const authenticateCoach = () => new Promise(r => setTimeout(() => r({ id: 101, name: "Memo Coach" }), 800));
 
-const authenticateCoach = () => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve({ id: 101, name: "Head Coach Memín" }), 800);
-    });
-};
+const getAthletes = (coachId) => new Promise(r => {
+    setTimeout(() => {
+        r([
+            { id: 1, user: "jUAn pErez", status: "inactive", points: 45 },
+            { id: 2, user: "mArIa gArCiA", status: "active", points: 88 },
+            { id: 3, user: "cArLoS rOdrIguEz", status: "inactive", points: 12 },
+            { id: 4, user: "lUciA fErNAnDeZ", status: "active", points: 95 },
+            { id: 5, user: "pAbLo mArTiN", status: "inactive", points: 30 }
+        ]);
+    }, 1500); // Un poco más de tiempo para apreciar el loader
+});
 
-const getAthletes = (coachId) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const athletes = [
-                { id: 1, user: "Sadid Acosta", status: "inactive", points: 45 },
-                { id: 2, user: "Brian Zambrano", status: "active", points: 88 },
-                { id: 3, user: "Pablo Cháves", status: "inactive", points: 12 },
-                { id: 4, user: "Andrea Rondón", status: "active", points: 95 },
-                { id: 5, user: "Miguelito el mascapito", status: "inactive", points: 30 }
-            ];
-            resolve(athletes);
-        }, 1200);
-    });
-};
-
-const calculateTeamMetrics = (athletes) => {
-    return new Promise((resolve) => {
-        const total = athletes.reduce((acc, curr) => acc + curr.points, 0);
-        const average = (total / athletes.length).toFixed(1);
-        resolve(average);
-    });
-};
+const calculateTeamMetrics = (athletes) => new Promise(r => {
+    const avg = (athletes.reduce((acc, c) => acc + c.points, 0) / athletes.length).toFixed(1);
+    r(avg);
+});
 
 // --- DOM FACTORY ---
 
@@ -36,77 +26,92 @@ const createAthleteCard = (athlete) => {
     const isActive = athlete.status === 'active';
     const levelClass = athlete.level === 'Elite' ? 'badge-elite' : 'badge-amateur';
     
-    card.className = `card ${isActive ? 'active' : ''}`;
+    // Agregamos clase 'fade-in' para animación de entrada
+    card.className = `card fade-in ${isActive ? 'active' : ''}`;
+    
     card.innerHTML = `
-        <div>
+        <div class="card-header">
             <h3>${athlete.formattedName}</h3>
-            <span class="badge ${levelClass}">${athlete.level} (${athlete.points} pts)</span>
-            <p>Estado: <strong class="status-text">${athlete.status}</strong></p>
+            <div class="meta">
+                <span class="badge ${levelClass}">${athlete.level}</span>
+                <span style="font-size:0.8rem; color:#94a3b8">PTS: ${athlete.points}</span>
+            </div>
         </div>
+
+        <div class="status-row">
+            <span class="status-dot"></span>
+            <span>Estado: <strong class="status-text">${athlete.status.toUpperCase()}</strong></span>
+        </div>
+
         <button ${isActive ? 'disabled' : ''}>
-            ${isActive ? '✔ Activo' : 'Activar Atleta'}
+            ${isActive ? 'Suscripción Activa' : 'Activar Membresía'}
         </button>
     `;
 
-    // Event Listener
+    // Lógica del botón
     const btn = card.querySelector('button');
     const statusTxt = card.querySelector('.status-text');
 
     btn.addEventListener('click', () => {
-        athlete.status = 'active'; // Update Data
-        // Update View
+        // Update Logic
+        athlete.status = 'active';
+        
+        // Update UI
         card.classList.add('active');
-        statusTxt.textContent = 'active';
-        btn.textContent = '✔ Activo';
-        btn.disabled = true;
+        statusTxt.textContent = 'ACTIVE';
+        btn.textContent = 'Procesando...'; // Micro-interacción
+        
+        // Simulamos un pequeño delay de proceso para realismo
+        setTimeout(() => {
+            btn.textContent = 'Suscripción Activa';
+            btn.disabled = true;
+        }, 500);
     });
 
     return card;
 };
 
-// --- MAIN CONTROLLER ---
-
+// --- MAIN ---
 async function loadDashboard() {
     const ui = {
         container: document.getElementById('athletes-container'),
-        statusMsg: document.getElementById('status-message'),
+        loader: document.getElementById('status-message'),
         dashboardInfo: document.getElementById('dashboard-info'),
         coachName: document.getElementById('coach-name'),
         teamScore: document.getElementById('team-score')
     };
 
     try {
-        ui.statusMsg.textContent = "Autenticando...";
         const coach = await authenticateCoach();
         ui.coachName.textContent = coach.name;
 
-        ui.statusMsg.textContent = "Cargando atletas...";
         const rawData = await getAthletes(coach.id);
 
         const processedData = rawData.map(a => ({
             ...a,
-            formattedName: a.user.toUpperCase(),
+            formattedName: a.user.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '), // Capitalización Correcta (Title Case)
             level: a.points > 50 ? 'Elite' : 'Amateur'
         }));
 
         const avgScore = await calculateTeamMetrics(processedData);
-        ui.teamScore.textContent = `${avgScore} pts`;
+        
+        // Animación de números (Opcional visual)
+        ui.teamScore.textContent = `${avgScore}`;
         ui.dashboardInfo.classList.remove('hidden');
 
-        // Render
-        ui.statusMsg.classList.add('hidden');
-        const fragment = document.createDocumentFragment();
+        // Limpiar loader y renderizar
+        ui.loader.classList.add('hidden');
         
-        processedData.forEach(athlete => {
-            fragment.appendChild(createAthleteCard(athlete));
+        processedData.forEach((athlete, index) => {
+            // Pequeño delay escalonado para efecto cascada en la animación
+            setTimeout(() => {
+                ui.container.appendChild(createAthleteCard(athlete));
+            }, index * 100);
         });
 
-        ui.container.appendChild(fragment);
-
     } catch (error) {
-        console.error("System Error:", error);
-        ui.statusMsg.textContent = "Error de conexión.";
-        ui.statusMsg.className = "error";
+        console.error(error);
+        ui.loader.innerHTML = `<p style="color:var(--danger)">⚠ Error de conexión</p>`;
     }
 }
 
