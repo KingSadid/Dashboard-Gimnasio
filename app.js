@@ -146,9 +146,9 @@ async function initDashboard() {
         });
 
         // Final DOM Manipulation
-        ui.loader.classList.add('hidden'); // Hide Loader
-        ui.statsPanel.classList.remove('hidden'); // Show Stats
-        ui.grid.appendChild(fragment); // Mount Cards
+        ui.loader.classList.add('hidden'); 
+        ui.statsPanel.classList.remove('hidden'); 
+        ui.grid.appendChild(fragment); 
 
     } catch (error) {
         console.error("Critical System Error:", error);
