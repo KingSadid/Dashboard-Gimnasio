@@ -11,7 +11,7 @@ const ApiService = {
 
     async loginCoach() {
         await this.delay(800);
-        return { id: 101, name: "Head Coach Memo", role: "Senior" };
+        return { id: 101, name: "Head Coach Memín", role: "Senior" };
     },
 
     async fetchAthletes(coachId) {
@@ -89,7 +89,6 @@ const createAthleteCard = (athleteData) => {
 
     // Event Handler (Controller logic)
     const handleToggle = async () => {
-        // 1. Optimistic UI update (optional) or Loading State
         state.isLoading = true;
         render();
 
