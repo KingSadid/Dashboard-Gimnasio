@@ -2,7 +2,7 @@
 
 const authenticateCoach = () => {
     return new Promise((resolve) => {
-        setTimeout(() => resolve({ id: 101, name: "Head Coach Memo" }), 800);
+        setTimeout(() => resolve({ id: 101, name: "Head Coach Memín" }), 800);
     });
 };
 
