@@ -26,7 +26,6 @@ const ApiService = {
     },
 
     async calculateTeamPerformance(athletes) {
-        // Simulating calculation
         const total = athletes.reduce((sum, item) => sum + item.points, 0);
         return (total / athletes.length).toFixed(1);
     }
