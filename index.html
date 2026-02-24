@@ -3,37 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Elite | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <title>Gym Elite | Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
     <header class="glass-header">
         <div class="brand">
-            <h1>⚡ GYM ELITE <span class="subtitle">PRO</span></h1>
+            <div class="logo-icon">⚡</div>
+            <h1>GYM ELITE <span class="badge-pro">PRO</span></h1>
         </div>
         
         <div id="dashboard-stats" class="stats-panel hidden" aria-live="polite">
-            <div class="stat-item">
-                <span class="label">Coach Activo</span>
-                <span class="value" id="coach-name">--</span>
+            <div class="stat-group">
+                <span class="label">Coach</span>
+                <strong class="value" id="coach-name">--</strong>
             </div>
             <div class="divider"></div>
-            <div class="stat-item">
-                <span class="label">Nivel de Equipo</span>
-                <span class="value accent" id="team-score">--</span>
+            <div class="stat-group">
+                <span class="label">Team Rating</span>
+                <strong class="value accent" id="team-score">--</strong>
             </div>
         </div>
     </header>
 
     <main>
-        <div id="global-loader" class="loader-container">
+        <div id="global-loader" class="loader-wrapper" aria-busy="true">
             <div class="spinner"></div>
-            <p class="blink">Sincronizando métricas...</p>
+            <p class="animate-pulse">Sincronizando datos biométricos...</p>
         </div>
 
-        <section id="athletes-grid" class="grid-container" aria-label="Lista de atletas"></section>
+        <section id="athletes-grid" class="grid-container"></section>
     </main>
 
     <script src="app.js"></script>

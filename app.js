@@ -1,99 +1,124 @@
 /**
- * SERVICE LAYER
- * Simula respuestas de Backend. Agrupado para limpieza del namespace.
+ * 
+ * GYM DASHBOARD 
+ * Architecture: Service -> Controller -> View
+ * 
  */
-const Service = {
-    authCoach: () => new Promise(resolve => {
-        setTimeout(() => resolve({ id: 101, name: "Head Coach Memo" }), 800);
-    }),
 
-    getAthletes: (coachId) => new Promise(resolve => {
-        setTimeout(() => {
-            resolve([
-                { id: 1, user: "Angelly Parra", status: "inactive", points: 45 },
-                { id: 2, user: "Sadid Acosta", status: "active", points: 88 },
-                { id: 3, user: "Andrés Cubillos", status: "inactive", points: 12 },
-                { id: 4, user: "Andrea Rondón", status: "active", points: 95 },
-                { id: 5, user: "Pablo Cháves", status: "inactive", points: 30 }
-            ]);
-        }, 1200);
-    }),
+// --- 1. SERVICE LAYER (API Simulation) ---
+const ApiService = {
+    delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 
-    calculateMetrics: (athletes) => new Promise(resolve => {
+    async loginCoach() {
+        await this.delay(800);
+        return { id: 101, name: "Head Coach Memo", role: "Senior" };
+    },
 
-        const total = athletes.reduce((sum, current) => sum + current.points, 0);
-        resolve((total / athletes.length).toFixed(1));
-    })
+    async fetchAthletes(coachId) {
+        await this.delay(1200);
+        return [
+            { id: 1, user: "jUAn pErez", status: "inactive", points: 45 },
+            { id: 2, user: "mArIa gArCiA", status: "active", points: 88 },
+            { id: 3, user: "cArLoS rOdrIguEz", status: "inactive", points: 12 },
+            { id: 4, user: "lUciA fErNAnDeZ", status: "active", points: 95 },
+            { id: 5, user: "pAbLo mArTiN", status: "inactive", points: 30 }
+        ];
+    },
+
+    async calculateTeamPerformance(athletes) {
+        // Simulating calculation
+        const total = athletes.reduce((sum, item) => sum + item.points, 0);
+        return (total / athletes.length).toFixed(1);
+    }
 };
 
-/**
- * UTILS
- * Funciones puras de ayuda.
- */
-const toTitleCase = (str) => 
-    str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+// --- 2. UTILS ---
+const formatName = (name) => {
+    return name.toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
 
-/**
- * COMPONENT FACTORY
- * Crea una tarjeta con estado encapsulado (Closure Pattern).
- * Esto evita tener variables globales trackeando el estado de cada tarjeta.
- */
+// --- 3. COMPONENT FACTORY (Stateful Card) ---
 const createAthleteCard = (athleteData) => {
-    const card = document.createElement('article');
+    const cardElement = document.createElement('article');
     
-    // Estado local
-    let currentState = {
-        status: athleteData.status,
+    // Internal State (Closure)
+    let state = {
+        isActive: athleteData.status === 'active',
         isLoading: false
     };
 
-    // Función de renderizado reactivo (View)
+    // Render Function (Updates View based on State)
     const render = () => {
-        const isActive = currentState.status === 'active';
+        const { isActive, isLoading } = state;
         const isElite = athleteData.points > 50;
+
+        // Apply visuals
+        cardElement.className = `card fade-in ${isActive ? 'active' : ''}`;
         
-        card.className = `card fade-in ${isActive ? 'active' : ''}`;
-        
-        card.innerHTML = `
+        cardElement.innerHTML = `
             <div class="card-header">
-                <h3>${toTitleCase(athleteData.user)}</h3>
-                <div class="meta-info">
+                <h3>${formatName(athleteData.user)}</h3>
+                <div class="meta-tags">
                     <span class="badge ${isElite ? 'elite' : 'amateur'}">
                         ${isElite ? 'Elite' : 'Amateur'}
                     </span>
-                    <span>${athleteData.points} PTS</span>
+                    <span class="badge amateur" style="background:transparent; border:1px solid rgba(255,255,255,0.1)">
+                        ${athleteData.points} PTS
+                    </span>
                 </div>
             </div>
-            
-            <button class="${isActive ? 'btn-danger' : 'btn-primary'}" ${currentState.isLoading ? 'disabled' : ''}>
-                ${currentState.isLoading ? 'Procesando...' : (isActive ? 'Desactivar Cuenta' : 'Activar Membresía')}
-            </button>
+
+            <div class="card-actions">
+                <button 
+                    class="${isActive ? 'btn-danger' : 'btn-primary'}" 
+                    ${isLoading ? 'disabled' : ''}
+                >
+                    ${isLoading 
+                        ? '<span>Procesando...</span>' 
+                        : (isActive ? '✖ Desactivar' : '✔ Activar Membresía')
+                    }
+                </button>
+            </div>
         `;
-        card.querySelector('button').addEventListener('click', handleToggle);
+
+        const btn = cardElement.querySelector('button');
+        if (btn) btn.addEventListener('click', handleToggle);
     };
 
-    // Controller de lógica de negocio 
-    const handleToggle = () => {
-        currentState.isLoading = true;
-        render(); 
+    // Event Handler (Controller logic)
+    const handleToggle = async () => {
+        // 1. Optimistic UI update (optional) or Loading State
+        state.isLoading = true;
+        render();
 
-        //  Network Request para toggle de estado
-        setTimeout(() => {
-            currentState.status = currentState.status === 'active' ? 'inactive' : 'active';
-            currentState.isLoading = false;
+        try {
+            // Simulate API Call
+            await ApiService.delay(800);
+            
+            // Update Data & State
+            state.isActive = !state.isActive;
+            athleteData.status = state.isActive ? 'active' : 'inactive';
+            
+        } catch (error) {
+            console.error("Toggle failed", error);
+            alert("No se pudo actualizar el estado");
+        } finally {
+            state.isLoading = false;
             render();
-        }, 800);
+        }
     };
 
+    // Initial Render
     render();
-    return card;
+    return cardElement;
 };
 
-/**
- * MAIN CONTROLLER
- * Orquestador del flujo de la aplicación.
- */
+// --- 4. MAIN CONTROLLER ---
 async function initDashboard() {
+    // UI 
     const ui = {
         grid: document.getElementById('athletes-grid'),
         loader: document.getElementById('global-loader'),
@@ -103,30 +128,39 @@ async function initDashboard() {
     };
 
     try {
-        const coach = await Service.authCoach();
+        // Step 1: Authentication
+        const coach = await ApiService.loginCoach();
         ui.coachLabel.textContent = coach.name;
 
-        const rawAthletes = await Service.getAthletes(coach.id);
+        // Step 2: Data Fetching
+        const athletes = await ApiService.fetchAthletes(coach.id);
+
+        // Step 3: Metrics Calculation
+        const teamScore = await ApiService.calculateTeamPerformance(athletes);
+        ui.scoreLabel.textContent = `${teamScore}`;
+
+        // Step 4: Render UI (using DocumentFragment for performance)
         const fragment = document.createDocumentFragment();
         
-        rawAthletes.forEach((athlete, index) => {
+        athletes.forEach((athlete, index) => {
             const card = createAthleteCard(athlete);
-            card.style.animationDelay = `${index * 100}ms`; 
+            card.style.animationDelay = `${index * 100}ms`;
             fragment.appendChild(card);
         });
 
-        // Calculamos métricas 
-        const teamScore = await Service.calculateMetrics(rawAthletes);
-        ui.scoreLabel.textContent = `${teamScore}`;
-
-        // Montaje final en DOM
-        ui.loader.classList.add('hidden');
-        ui.statsPanel.classList.remove('hidden');
-        ui.grid.appendChild(fragment);
+        // Final DOM Manipulation
+        ui.loader.classList.add('hidden'); // Hide Loader
+        ui.statsPanel.classList.remove('hidden'); // Show Stats
+        ui.grid.appendChild(fragment); // Mount Cards
 
     } catch (error) {
-        console.error("Critical Failure:", error);
-        ui.loader.innerHTML = `<p style="color: #ef4444">Error de conexión. Intente recargar.</p>`;
+        console.error("Critical System Error:", error);
+        ui.loader.innerHTML = `
+            <div style="color:var(--state-danger); text-align:center">
+                <h3>⚠ Error de Conexión</h3>
+                <p>No se pudieron cargar los datos del servidor.</p>
+            </div>
+        `;
     }
 }
 
