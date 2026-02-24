@@ -17,11 +17,11 @@ const ApiService = {
     async fetchAthletes(coachId) {
         await this.delay(1200);
         return [
-            { id: 1, user: "jUAn pErez", status: "inactive", points: 45 },
-            { id: 2, user: "mArIa gArCiA", status: "active", points: 88 },
-            { id: 3, user: "cArLoS rOdrIguEz", status: "inactive", points: 12 },
-            { id: 4, user: "lUciA fErNAnDeZ", status: "active", points: 95 },
-            { id: 5, user: "pAbLo mArTiN", status: "inactive", points: 30 }
+            { id: 1, user: "Angelly Parra", status: "inactive", points: 45 },
+            { id: 2, user: "Andrea Rondón", status: "active", points: 88 },
+            { id: 3, user: "Miguelito el mascapito", status: "inactive", points: 12 },
+            { id: 4, user: "Sadid Acosta", status: "active", points: 95 },
+            { id: 5, user: "Pablo Cháves", status: "inactive", points: 30 }
         ];
     },
 
