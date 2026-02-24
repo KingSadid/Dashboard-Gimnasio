@@ -97,8 +97,6 @@ const createAthleteCard = (athleteData) => {
         try {
             // Simulate API Call
             await ApiService.delay(800);
-            
-            // Update Data & State
             state.isActive = !state.isActive;
             athleteData.status = state.isActive ? 'active' : 'inactive';
             
