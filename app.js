@@ -10,17 +10,17 @@ const Service = {
     getAthletes: (coachId) => new Promise(resolve => {
         setTimeout(() => {
             resolve([
-                { id: 1, user: "jUAn pErez", status: "inactive", points: 45 },
-                { id: 2, user: "mArIa gArCiA", status: "active", points: 88 },
-                { id: 3, user: "cArLoS rOdrIguEz", status: "inactive", points: 12 },
-                { id: 4, user: "lUciA fErNAnDeZ", status: "active", points: 95 },
-                { id: 5, user: "pAbLo mArTiN", status: "inactive", points: 30 }
+                { id: 1, user: "Angelly Parra", status: "inactive", points: 45 },
+                { id: 2, user: "Sadid Acosta", status: "active", points: 88 },
+                { id: 3, user: "Andrés Cubillos", status: "inactive", points: 12 },
+                { id: 4, user: "Andrea Rondón", status: "active", points: 95 },
+                { id: 5, user: "Pablo Cháves", status: "inactive", points: 30 }
             ]);
         }, 1200);
     }),
 
     calculateMetrics: (athletes) => new Promise(resolve => {
-        // Operación "pesada" simulada
+
         const total = athletes.reduce((sum, current) => sum + current.points, 0);
         resolve((total / athletes.length).toFixed(1));
     })
@@ -41,7 +41,7 @@ const toTitleCase = (str) =>
 const createAthleteCard = (athleteData) => {
     const card = document.createElement('article');
     
-    // Estado local mutables
+    // Estado local
     let currentState = {
         status: athleteData.status,
         isLoading: false
@@ -69,26 +69,22 @@ const createAthleteCard = (athleteData) => {
                 ${currentState.isLoading ? 'Procesando...' : (isActive ? 'Desactivar Cuenta' : 'Activar Membresía')}
             </button>
         `;
-
-        // Re-binding del evento tras actualizar innerHTML
         card.querySelector('button').addEventListener('click', handleToggle);
     };
 
     // Handler de lógica de negocio (Controller)
     const handleToggle = () => {
         currentState.isLoading = true;
-        render(); // Feedback visual inmediato
+        render(); 
 
-        // Simulación de Network Request
+        //  Network Request para toggle de estado
         setTimeout(() => {
             currentState.status = currentState.status === 'active' ? 'inactive' : 'active';
             currentState.isLoading = false;
             render();
-            // Nota: En una app real, aquí emitiríamos un evento para recalcular el promedio global
         }, 800);
     };
 
-    // Inicialización
     render();
     return card;
 };
