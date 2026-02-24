@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Elite | Pro Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Gym Elite | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
     <header class="glass-header">
-        <div class="logo-area">
-            <h1>⚡ GYM ELITE <span class="subtitle">PRO DASHBOARD</span></h1>
+        <div class="brand">
+            <h1>⚡ GYM ELITE <span class="subtitle">PRO</span></h1>
         </div>
         
-        <div id="dashboard-info" class="stats-panel hidden">
+        <div id="dashboard-stats" class="stats-panel hidden" aria-live="polite">
             <div class="stat-item">
-                <span class="label">Head Coach</span>
+                <span class="label">Coach Activo</span>
                 <span class="value" id="coach-name">--</span>
             </div>
             <div class="divider"></div>
             <div class="stat-item">
-                <span class="label">Rendimiento Equipo</span>
+                <span class="label">Nivel de Equipo</span>
                 <span class="value accent" id="team-score">--</span>
             </div>
         </div>
     </header>
 
     <main>
-        <div id="status-message" class="loader-container">
+        <div id="global-loader" class="loader-container">
             <div class="spinner"></div>
-            <p class="blink">Sincronizando datos biométricos...</p>
+            <p class="blink">Sincronizando métricas...</p>
         </div>
 
-        <div id="athletes-container" class="grid-container"></div>
+        <section id="athletes-grid" class="grid-container" aria-label="Lista de atletas"></section>
     </main>
 
     <script src="app.js"></script>
 </body>
-</html>>
+</html>
