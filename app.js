@@ -11,7 +11,7 @@ const getAthletes = (coachId) => {
         setTimeout(() => {
             const athletes = [
                 { id: 1, user: "Sadid Acosta", status: "inactive", points: 45 },
-                { id: 2, user: "Angelly Parra", status: "active", points: 88 },
+                { id: 2, user: "Brian Zambri", status: "active", points: 88 },
                 { id: 3, user: "Pablo Cháves", status: "inactive", points: 12 },
                 { id: 4, user: "Andrea Rondón", status: "active", points: 95 },
                 { id: 5, user: "Laura Mariño", status: "inactive", points: 30 }
