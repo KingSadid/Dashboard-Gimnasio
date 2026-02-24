@@ -1,13 +1,15 @@
-// --- SIMULACIÓN DE BACKEND ---
+// --- SERVICES (MOCK API) ---
 
-/**
- * Simula una petición a una API para obtener atletas.
- * @returns {Promise<Array>}
- */
-const getAthletes = () => {
+const authenticateCoach = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ id: 101, name: "Head Coach Memo" }), 800);
+    });
+};
+
+const getAthletes = (coachId) => {
     return new Promise((resolve) => {
         setTimeout(() => {
-            const athletes = [ 
+            const athletes = [
                 { id: 1, user: "jUAn pErez", status: "inactive", points: 45 },
                 { id: 2, user: "mArIa gArCiA", status: "active", points: 88 },
                 { id: 3, user: "cArLoS rOdrIguEz", status: "inactive", points: 12 },
@@ -19,101 +21,93 @@ const getAthletes = () => {
     });
 };
 
-// --- LÓGICA DE UI Y NEGOCIO ---
+const calculateTeamMetrics = (athletes) => {
+    return new Promise((resolve) => {
+        const total = athletes.reduce((acc, curr) => acc + curr.points, 0);
+        const average = (total / athletes.length).toFixed(1);
+        resolve(average);
+    });
+};
 
-/**
- * Crea el elemento HTML (tarjeta) para un atleta.
- * @param {Object} athlete - Objeto con datos formateados del atleta
- * @returns {HTMLElement} - El nodo del DOM listo para insertar
- */
+// --- DOM FACTORY ---
+
 const createAthleteCard = (athlete) => {
     const card = document.createElement('div');
-    card.className = `card ${athlete.status === 'active' ? 'active' : ''}`;
-    card.id = `card-${athlete.id}`;
-
-    // Determinamos si el botón debe estar deshabilitado inicialmente
-    const isAlreadyActive = athlete.status === 'active';
-    const btnText = isAlreadyActive ? '✔ Activo' : 'Comprar Membresía';
-
+    const isActive = athlete.status === 'active';
+    const levelClass = athlete.level === 'Elite' ? 'badge-elite' : 'badge-amateur';
+    
+    card.className = `card ${isActive ? 'active' : ''}`;
     card.innerHTML = `
         <div>
             <h3>${athlete.formattedName}</h3>
-            <span class="badge ${athlete.level === 'Elite' ? 'badge-elite' : 'badge-amateur'}">
-                ${athlete.level} (${athlete.points} pts)
-            </span>
+            <span class="badge ${levelClass}">${athlete.level} (${athlete.points} pts)</span>
             <p>Estado: <strong class="status-text">${athlete.status}</strong></p>
         </div>
-        <button class="btn-action" ${isAlreadyActive ? 'disabled' : ''}>
-            ${btnText}
+        <button ${isActive ? 'disabled' : ''}>
+            ${isActive ? '✔ Activo' : 'Activar Atleta'}
         </button>
     `;
 
-    // Lógica del botón (Closure para mantener referencia al objeto)
-    const button = card.querySelector('button');
-    const statusText = card.querySelector('.status-text');
+    // Event Listener
+    const btn = card.querySelector('button');
+    const statusTxt = card.querySelector('.status-text');
 
-    button.addEventListener('click', () => {
-        // 1. Actualizar estado del objeto (Simulación de persistencia)
-        athlete.status = 'active';
-
-        // 2. Manipulación del DOM para reflejar el cambio
+    btn.addEventListener('click', () => {
+        athlete.status = 'active'; // Update Data
+        // Update View
         card.classList.add('active');
-        statusText.textContent = 'active';
-        
-        // 3. Feedback visual en el botón
-        button.textContent = '✔ Activo';
-        button.disabled = true; // Evitar doble compra
-        button.style.backgroundColor = 'var(--success)';
+        statusTxt.textContent = 'active';
+        btn.textContent = '✔ Activo';
+        btn.disabled = true;
     });
 
     return card;
 };
 
-/**
- * Función Principal asíncrona
- */
+// --- MAIN CONTROLLER ---
+
 async function loadDashboard() {
-    const container = document.getElementById('athletes-container');
-    const statusMsg = document.getElementById('status-message');
+    const ui = {
+        container: document.getElementById('athletes-container'),
+        statusMsg: document.getElementById('status-message'),
+        dashboardInfo: document.getElementById('dashboard-info'),
+        coachName: document.getElementById('coach-name'),
+        teamScore: document.getElementById('team-score')
+    };
 
     try {
-        // 1. Llamada asíncrona
-        const rawData = await getAthletes();
+        ui.statusMsg.textContent = "Autenticando...";
+        const coach = await authenticateCoach();
+        ui.coachName.textContent = coach.name;
 
-        // Limpiamos mensaje de carga
-        statusMsg.classList.add('hidden');
+        ui.statusMsg.textContent = "Cargando atletas...";
+        const rawData = await getAthletes(coach.id);
 
-        // 2. Transformación de datos (Map)
-        // Creamos una estructura intermedia con los datos procesados y el elemento HTML
-        const processedAthletes = rawData.map(athlete => {
-            // Lógica de negocio
-            const formattedName = athlete.user.toUpperCase();
-            const level = athlete.points > 50 ? 'Elite' : 'Amateur';
+        const processedData = rawData.map(a => ({
+            ...a,
+            formattedName: a.user.toUpperCase(),
+            level: a.points > 50 ? 'Elite' : 'Amateur'
+        }));
 
-            // Retornamos un objeto enriquecido
-            const enrichedAthlete = {
-                ...athlete, // Spread operator para mantener props originales
-                formattedName,
-                level
-            };
+        const avgScore = await calculateTeamMetrics(processedData);
+        ui.teamScore.textContent = `${avgScore} pts`;
+        ui.dashboardInfo.classList.remove('hidden');
 
-            // Generamos el HTML basado en este objeto enriquecido
-            const htmlElement = createAthleteCard(enrichedAthlete);
-
-            return htmlElement;
+        // Render
+        ui.statusMsg.classList.add('hidden');
+        const fragment = document.createDocumentFragment();
+        
+        processedData.forEach(athlete => {
+            fragment.appendChild(createAthleteCard(athlete));
         });
 
-        // 3. Inserción en el DOM (ForEach)
-        processedAthletes.forEach(cardNode => {
-            container.appendChild(cardNode);
-        });
+        ui.container.appendChild(fragment);
 
     } catch (error) {
-        console.error("Error crítico en el sistema:", error);
-        statusMsg.textContent = "Error al cargar los datos. Por favor intente más tarde.";
-        statusMsg.style.color = "red";
+        console.error("System Error:", error);
+        ui.statusMsg.textContent = "Error de conexión.";
+        ui.statusMsg.className = "error";
     }
 }
 
-// Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', loadDashboard);
